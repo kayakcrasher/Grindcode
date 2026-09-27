@@ -11,6 +11,8 @@ from rich.panel import Panel
 from rich.table import Table
 
 from grindcode import __version__
+from grindcode.log import log as log_command
+from grindcode.log import log as log_command
 from grindcode.scaffold import list_templates, scaffold
 
 console = Console()
@@ -121,5 +123,15 @@ def new(template, name, force):
     console.print("  [cyan]pytest -v[/]")
 
 
+main.add_command(log_command)
+
+
+main.add_command(log_command)
+
+
 if __name__ == "__main__":
     main()
+
+
+from grindcode.log import log as _log_command
+main.add_command(_log_command)
