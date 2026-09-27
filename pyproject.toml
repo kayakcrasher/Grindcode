@@ -1,0 +1,51 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "grindcode"
+version = "0.1.0"
+description = "Grindcode Mobile Helper — tools for coding on your phone"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+    { name = "kayakcrasher" },
+]
+keywords = ["termux", "mobile", "cli", "developer-tools", "phone", "android"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Android",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Terminals",
+]
+dependencies = [
+    "click>=8.1",
+    "rich>=13.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+[project.scripts]
+grindcode = "grindcode.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/kayakcrasher/Grindcode"
+Repository = "https://github.com/kayakcrasher/Grindcode"
+Issues = "https://github.com/kayakcrasher/Grindcode/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/grindcode"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
