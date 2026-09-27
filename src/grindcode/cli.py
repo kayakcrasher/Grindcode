@@ -11,8 +11,10 @@ from rich.panel import Panel
 from rich.table import Table
 
 from grindcode import __version__
+from grindcode.gtoken import gtoken as gtoken_command
 from grindcode.hd import hd as hd_command
 from grindcode.log import log as log_command
+from grindcode.gtoken import gtoken as gtoken_command
 from grindcode.hd import hd as hd_command
 from grindcode.log import log as log_command
 from grindcode.scaffold import list_templates, scaffold
@@ -127,10 +129,12 @@ def new(template, name, force):
 
 main.add_command(log_command)
 main.add_command(hd_command)
+main.add_command(gtoken_command)
 
 
 main.add_command(log_command)
 main.add_command(hd_command)
+main.add_command(gtoken_command)
 
 
 if __name__ == "__main__":
