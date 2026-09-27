@@ -11,6 +11,7 @@ from rich.panel import Panel
 from rich.table import Table
 
 from grindcode import __version__
+from grindcode.scaffold import list_templates, scaffold
 
 console = Console()
 
@@ -44,19 +45,12 @@ def doctor():
     table.add_column("Status")
     table.add_column("Details")
 
-    # Python
     py = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
     ok = sys.version_info >= (3, 11)
-    table.add_row(
-        "Python",
-        "[green]OK[/]" if ok else "[red]FAIL[/]",
-        f"{py} (need 3.11+)",
-    )
+    table.add_row("Python", "[green]OK[/]" if ok else "[red]FAIL[/]", f"{py} (need 3.11+)")
 
-    # Platform
     table.add_row("Platform", "[green]OK[/]", platform.platform())
 
-    # Termux
     is_termux = "com.termux" in sys.prefix
     table.add_row(
         "Termux",
@@ -64,30 +58,15 @@ def doctor():
         sys.prefix if is_termux else "not detected",
     )
 
-    # Git
     git_path = shutil.which("git")
-    table.add_row(
-        "Git",
-        "[green]OK[/]" if git_path else "[red]MISSING[/]",
-        git_path or "install with: pkg install git",
-    )
+    table.add_row("Git", "[green]OK[/]" if git_path else "[red]MISSING[/]", git_path or "pkg install git")
 
-    # pip
     pip_path = shutil.which("pip") or shutil.which("pip3")
-    table.add_row(
-        "pip",
-        "[green]OK[/]" if pip_path else "[red]MISSING[/]",
-        pip_path or "install with: pkg install python-pip",
-    )
+    table.add_row("pip", "[green]OK[/]" if pip_path else "[red]MISSING[/]", pip_path or "pkg install python-pip")
 
-    # Home directory writable
     home = Path.home()
     home_ok = home.exists() and home.is_dir()
-    table.add_row(
-        "Home dir",
-        "[green]OK[/]" if home_ok else "[red]FAIL[/]",
-        str(home),
-    )
+    table.add_row("Home dir", "[green]OK[/]" if home_ok else "[red]FAIL[/]", str(home))
 
     console.print(table)
     console.print()
@@ -101,15 +80,16 @@ def doctor():
 @main.command()
 @click.argument("template", required=False)
 @click.argument("name", required=False)
-def new(template, name):
+@click.option("--force", is_flag=True, help="Overwrite target directory if it exists.")
+def new(template, name, force):
     """Create a new project from a template.
 
     Example: grindcode new fastapi my-app
     """
     if not template:
         console.print("[bold]Available templates:[/]\n")
-        console.print("  [cyan]fastapi[/]  FastAPI web app with tests and CI")
-        console.print("  [cyan]cli[/]      Python CLI tool")
+        for t in list_templates():
+            console.print(f"  [cyan]{t}[/]")
         console.print()
         console.print("Usage: [dim]grindcode new <template> <name>[/]")
         return
@@ -119,8 +99,26 @@ def new(template, name):
         console.print("Usage: [dim]grindcode new <template> <name>[/]")
         sys.exit(1)
 
-    console.print(f"[yellow]Scaffolding {template} project '{name}'...[/]")
-    console.print("[dim]Not implemented yet. Coming soon.[/]")
+    target = Path.cwd() / name
+
+    try:
+        files = scaffold(template, name, target, force=force)
+    except ValueError as e:
+        console.print(f"[red]Error:[/] {e}")
+        console.print(f"Available: [cyan]{', '.join(list_templates())}[/]")
+        sys.exit(1)
+    except FileExistsError as e:
+        console.print(f"[red]Error:[/] {e}")
+        console.print("Use [cyan]--force[/] to overwrite.")
+        sys.exit(1)
+
+    console.print(f"[green]Created[/] {template} project at [bold]{target}[/]\n")
+    for f in files:
+        console.print(f"  [dim]{f}[/]")
+    console.print()
+    console.print("Next steps:")
+    console.print(f"  [cyan]cd {name}[/]")
+    console.print("  [cyan]pytest -v[/]")
 
 
 if __name__ == "__main__":
